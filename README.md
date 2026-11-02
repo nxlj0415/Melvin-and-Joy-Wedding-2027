@@ -9,7 +9,7 @@ This is a static website that works with GitHub Pages. Keep `index.html` at the 
 4. Wait for the Pages deployment, then open the URL GitHub provides (typically `https://USERNAME.github.io/REPOSITORY/`).
 
 ## RSVP email — important
-GitHub Pages does NOT process forms or send email itself. This website uses FormSubmit (`https://formsubmit.co/angelalylucio01@gmail.com,christinejoydecastro31@gmail.com,mirsummon22@gmail.com`).
+GitHub Pages does NOT process forms or send email itself. This website uses FormSubmit (`https://formsubmit.co/angelalylucio01@gmail.com,christinejoydecastro31@gmail.com,mirsummon22@gmail.com,alm.lucio04@gmail.com`).
 
 **Before relying on RSVPs:** submit a test RSVP from the published website. FormSubmit will send a verification/activation email to `angelalylucio01@gmail.com`. Open that email and activate the form. Then submit a **second** test RSVP and confirm it arrives in Gmail (including Spam). Until activation, email delivery is not operational.
 
