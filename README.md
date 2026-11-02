@@ -8,10 +8,10 @@ This is a static website that works with GitHub Pages. Keep `index.html` at the 
 3. In repository **Settings → Pages**, choose **Deploy from a branch**, branch `main`, folder `/(root)`, and Save.
 4. Wait for the Pages deployment, then open the URL GitHub provides (typically `https://USERNAME.github.io/REPOSITORY/`).
 
-## RSVP email — important
-GitHub Pages does NOT process forms or send email itself. This website uses FormSubmit (`https://formsubmit.co/angelalylucio01@gmail.com,christinejoydecastro31@gmail.com,mirsummon22@gmail.com,alm.lucio04@gmail.com`).
+## RSVP delivery to four addresses
+The form uses the **official FormSubmit CC feature**. The primary form action is `https://formsubmit.co/angelalylucio01@gmail.com`; its hidden `_cc` field sends copies to `christinejoydecastro31@gmail.com`, `mirsummon22@gmail.com`, and `alm.lucio04@gmail.com`.
 
-**Before relying on RSVPs:** submit a test RSVP from the published website. FormSubmit will send a verification/activation email to `angelalylucio01@gmail.com`. Open that email and activate the form. Then submit a **second** test RSVP and confirm it arrives in Gmail (including Spam). Until activation, email delivery is not operational.
+**Activation required:** After publishing, submit a test RSVP and open the FormSubmit activation email sent to the primary address. Click the activation link. Submit a second RSVP and verify delivery to all four inboxes (including spam). If any CC recipient does not receive a copy, check spam and contact FormSubmit support. We cannot test external email delivery from this ZIP.
 
 The RSVP form asks for guest name, Yes/No attendance, and optional message. It does not ask for guest count.
 
@@ -26,4 +26,11 @@ To update your existing GitHub repository, use **Add file → Upload files** and
 
 
 ## Multiple RSVP recipients
-The form is configured to request delivery to angelalylucio01@gmail.com, christinejoydecastro31@gmail.com, and mirsummon22@gmail.com using a comma-separated FormSubmit recipient list. Each recipient may need to confirm activation. Test from the published site and verify delivery to all three inboxes (including Spam). Delivery depends on FormSubmit accepting the multi-recipient configuration and activation; it is not guaranteed by editing HTML alone.
+The form uses one primary recipient and three CC recipients as documented by FormSubmit. Test delivery to all four inboxes after activating the primary form.
+
+
+## Updated RSVP recipients
+Primary: alm.lucio04@gmail.com
+CC: vhinjoy13@gmail.com, christinejoydecastro31@gmail.com
+
+FormSubmit activation may be required for the primary recipient. Test a live RSVP and check all three inboxes.
