@@ -20,6 +20,8 @@ let rsvpNonce = '';
 let rsvpTimer = null;
 let rsvpPoll = null;
 let rsvpCheckNumber = 0;
+let rsvpStatusFrame = null;
+let rsvpVerifyInProgress = false;
 
 function checkRsvpSaved(nonce) {
   // JSONP status endpoint: unlike an Apps Script iframe, this callback runs
@@ -52,6 +54,7 @@ function completeRsvp() {
   rsvpPending = false;
   clearInterval(rsvpPoll);
   clearTimeout(rsvpTimer);
+  if (rsvpStatusFrame) { rsvpStatusFrame.remove(); rsvpStatusFrame = null; }
   sessionStorage.setItem('melvinJoyRsvpConfirmed', rsvpNonce);
   window.location.assign('thank-you.html');
 }
@@ -61,6 +64,27 @@ window.addEventListener('message', (event) => {
   if (!rsvpPending || !event.data || event.data.type !== 'melvin-joy-rsvp' || event.data.nonce !== rsvpNonce) return;
   if (event.data.ok) completeRsvp();
   // Errors are checked against the saved record before showing failure.
+});
+
+// Fallback verification via a hidden status iframe. Apps Script's HTML
+// response can postMessage even when its ContentService JSONP is blocked.
+function checkRsvpSavedInFrame(nonce) {
+  if (!rsvpPending) return;
+  if (rsvpStatusFrame) rsvpStatusFrame.remove();
+  const frame = document.createElement('iframe');
+  frame.title = 'RSVP confirmation status';
+  frame.style.display = 'none';
+  frame.src = RSVP_SCRIPT_URL + '?action=status&nonce=' +
+    encodeURIComponent(nonce) + '&_=' + Date.now();
+  rsvpStatusFrame = frame;
+  document.body.appendChild(frame);
+}
+
+window.addEventListener('message', (event) => {
+  const data = event.data;
+  if (!rsvpPending || !data || data.type !== 'melvin-joy-rsvp-status' ||
+      data.nonce !== rsvpNonce) return;
+  if (data.saved === true) completeRsvp();
 });
 
 rsvpForm.addEventListener('submit', (event) => {
@@ -92,12 +116,14 @@ rsvpForm.addEventListener('submit', (event) => {
     try {
       const result = await checkRsvpSaved(rsvpNonce);
       if (result && result.saved) completeRsvp();
+      else if (rsvpPending) checkRsvpSavedInFrame(rsvpNonce);
     } finally { checking = false; }
   };
   rsvpPoll = setInterval(verify, 3500);
   rsvpTimer = setTimeout(() => {
     if (!rsvpPending) return;
     clearInterval(rsvpPoll);
+    if (rsvpStatusFrame) { rsvpStatusFrame.remove(); rsvpStatusFrame = null; }
     rsvpPending = false;
     button.disabled = false;
     button.textContent = 'CHECK / RESEND RSVP';

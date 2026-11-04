@@ -1,22 +1,13 @@
-MELVIN & JOY RSVP — CONFIRMATION FIX
+MELVIN & JOY RSVP — DUAL CONFIRMATION FIX
 
-The screenshot shows RSVPs are already saved to Google Sheets. The old
-confirmation used an Apps Script iframe that cannot reliably message GitHub Pages.
-This version checks the saved Submission ID using a JSONP callback instead.
+Google Sheets already saves the RSVP. This package improves the confirmation mechanism using both a JSONP status lookup and a hidden iframe status lookup. It redirects to thank-you.html ONLY when a matching Submission ID is verified.
 
-BOTH UPDATES ARE REQUIRED:
+1. In your Google Apps Script editor, replace Code.gs with google-apps-script.gs from this ZIP. Save.
+2. Deploy > Manage deployments > Edit (pencil) > New version > Deploy. Keep the existing Web App URL and Anyone access.
+3. In GitHub, upload/replace script.js and thank-you.html from this ZIP (or upload all website files). Commit.
+4. Wait for GitHub Pages deployment, then press Ctrl+Shift+R. Submit ONE test RSVP.
+5. Check Google Sheets and whether thank-you.html opens.
 
-1. In the wedding RSVP Google Apps Script project, replace the existing code
-   with the contents of google-apps-script.gs in this ZIP.
-2. Save. Deploy > Manage deployments > Edit (pencil) > Version: New version
-   > Deploy. Keep the existing /exec URL.
-3. In GitHub repository nxlj0415/Melvin-and-Joy-Wedding-2027, replace
-   script.js with the one in this ZIP. Also upload thank-you.html if missing.
-   Commit the changes and wait for GitHub Pages deployment to complete.
-4. Refresh the wedding website with Ctrl+Shift+R, then submit ONE test RSVP.
-5. Verify that the entry appears in the RSVP Responses sheet and the browser
-   opens thank-you.html.
+If it still says confirmation could not be verified, do not resend an already-saved RSVP. Check Apps Script Executions for doGet failures, and share a screenshot.
 
-IMPORTANT: Do not upload google-apps-script.gs to GitHub as a substitute for
-updating Apps Script. It must be pasted into the actual Apps Script editor.
-The backend uses the same spreadsheet ID and recipient emails as the supplied ZIP.
+Do not replace your Apps Script by merely uploading google-apps-script.gs to GitHub.

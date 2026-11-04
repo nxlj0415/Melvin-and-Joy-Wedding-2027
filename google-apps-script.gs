@@ -37,7 +37,7 @@ function doPost(e) {
 function safeCell(s) { return /^[=+\-@]/.test(s) ? "'" + s : s; }
 function reply(ok, nonce, error) {
   const data = JSON.stringify({type:'melvin-joy-rsvp',ok:ok,nonce:nonce,error:error}).replace(/</g,'\\u003c');
-  return HtmlService.createHtmlOutput('<!doctype html><html><body><script>window.top.postMessage(' + data + ',"*");window.parent.postMessage(' + data + ',"*");<\/script></body></html>');
+  return HtmlService.createHtmlOutput('<!doctype html><html><body><script>window.top.postMessage(' + data + ',"*");window.parent.postMessage(' + data + ',"*");<\/script></body></html>').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 // JSONP confirmation endpoint. Deploy a NEW VERSION after replacing this file.
@@ -47,7 +47,7 @@ function doGet(e) {
   const p = (e && e.parameter) || {};
   const nonce = String(p.nonce || '').slice(0, 120);
   const callback = String(p.callback || '');
-  if (p.action !== 'status' || !nonce || !/^[A-Za-z_$][\w$]{0,100}$/.test(callback)) {
+  if (p.action !== 'status' || !nonce || (callback && !/^[A-Za-z_$][\w$]{0,100}$/.test(callback))) {
     return ContentService.createTextOutput('Invalid status request')
       .setMimeType(ContentService.MimeType.TEXT);
   }
@@ -61,6 +61,15 @@ function doGet(e) {
     }
   } catch (err) { console.error('RSVP status lookup failed: ' + err); }
   const payload = JSON.stringify({type:'melvin-joy-rsvp-status', nonce:nonce, saved:saved});
-  return ContentService.createTextOutput(callback + '(' + payload + ');')
-    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  if (callback) {
+    return ContentService.createTextOutput(callback + '(' + payload + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  // A frame-based status check works even if JSONP is blocked by the browser.
+  const html = '<!doctype html><html><body><script>' +
+    'window.parent.postMessage(' + payload + ',"*");' +
+    'window.top.postMessage(' + payload + ',"*");' +
+    '<\/script></body></html>';
+  return HtmlService.createHtmlOutput(html)
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
