@@ -409,11 +409,11 @@
 <p class="section-intro">
      Your presence would mean the world to us. Please let us know if you can join us.
     </p>
-<form action="https://formsubmit.co/alm.lucio04@gmail.com" id="rsvpForm" method="POST">
-<input type="hidden" name="_next" value="https://nxlj0415.github.io/Melvin-and-Joy-Wedding-2027/thank-you.html">
-<input type="hidden" name="_cc" value="vhinjoy13@gmail.com,christinejoydecastro31@gmail.com"/>
-<input type="hidden" name="_subject" value="New RSVP for Melvin & Joy Wedding"/>
-<input type="hidden" name="_template" value="table"/>
+<form id="rsvpForm" method="POST" target="rsvpResultFrame">
+
+
+
+
 <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off"/>
 <p class="visually-hidden">
 <label>
@@ -446,7 +446,8 @@
 <button class="btn" type="submit">
       SEND MY RSVP
      </button>
-<p class="form-note">Your response will be sent through FormSubmit. On first use, the website owner must activate email delivery using the verification email.</p>
+<p class="form-note" id="rsvpStatus" role="status" aria-live="polite">Please complete the RSVP form to send your response.</p>
+<iframe name="rsvpResultFrame" id="rsvpResultFrame" title="RSVP submission response" style="display:none"></iframe>
 </form>
 </section>
 </main>
