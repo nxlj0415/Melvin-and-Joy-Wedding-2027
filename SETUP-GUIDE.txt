@@ -1,17 +1,19 @@
-MELVIN & JOY RSVP — FINAL CONNECTION STEPS
+MELVIN & JOY RSVP - CONFIRMATION FIX
 
-The website script.js already includes your deployed Web App URL.
+1. Open the Google Apps Script project Melvin & Joy RSVP 2027.
+2. Replace ALL Code.gs contents with google-apps-script.gs from this ZIP. Save.
+3. Deploy > Manage deployments > Edit (pencil) > Version: New version > Deploy.
+   Keep Execute as: Me and Who has access: Anyone.
+   Keep the SAME existing Web App URL (already in script.js).
+4. Extract this ZIP and upload the website files to the ROOT of your GitHub Pages repository.
+   Replace script.js and other matching files, then commit changes.
+5. Hard refresh the published page (Ctrl+Shift+R). Submit ONE test RSVP.
+6. Verify a row is saved in the RSVP Responses sheet and the thank-you page opens.
+7. Check email notifications separately; email delivery is not guaranteed by row saving.
 
-IMPORTANT: The Google Apps Script currently deployed may still use getActiveSpreadsheet(). Since your project is standalone, update it before testing:
+WHY THIS FIX: The previous version saved rows but did not reliably send a browser confirmation
+across Google's embedded web-app frame. The new version checks the sheet by the unique
+submission ID before redirecting. If confirmation is unavailable it does not falsely
+claim success. Resubmissions reuse the same ID to reduce duplicates.
 
-1. In Google Apps Script Code.gs replace ALL code with google-apps-script.gs from this ZIP.
-2. Save (Ctrl+S).
-3. Click Deploy > Manage deployments > Edit (pencil).
-4. Choose Version: New version and click Deploy. Do not create an unrelated deployment.
-5. Upload index.html, script.js, style.css, thank-you.html and images to the root of your GitHub Pages repository.
-6. Wait for GitHub Pages to publish and test one RSVP. Check RSVP Responses sheet and recipient inboxes.
-
-Web App URL: https://script.google.com/macros/s/AKfycbz2nBZr4cAsg9dAF7ke_F_qSI9pqtnyNR9ClMtPm7g6ZlaACCv5aeFkpaVTkPvaZCWn/exec
-Spreadsheet ID: 1E00yfmksAzRZF7nlrc4ygiCWcqWxOTi5_1FfrHoTYwY
-
-If the form times out, inspect Apps Script > Executions and check whether the response was saved before retrying.
+SECURITY: The status endpoint only returns whether a supplied random submission ID exists.

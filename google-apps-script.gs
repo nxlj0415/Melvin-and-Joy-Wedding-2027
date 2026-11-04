@@ -35,3 +35,27 @@ function reply(ok, nonce, error) {
   const data = JSON.stringify({type:'melvin-joy-rsvp',ok:ok,nonce:nonce,error:error}).replace(/</g,'\\u003c');
   return HtmlService.createHtmlOutput('<!doctype html><html><body><script>window.top.postMessage(' + data + ',"*");window.parent.postMessage(' + data + ',"*");<\/script></body></html>');
 }
+
+// Cross-origin confirmation check. JSONP is used because Google Apps Script
+// web-app responses cannot reliably be read by fetch() on GitHub Pages.
+function doGet(e) {
+  const p = (e && e.parameter) || {};
+  const callback = String(p.callback || '');
+  const nonce = String(p.nonce || '').slice(0,120);
+  if (p.action !== 'status' || !/^rsvpVerify_[0-9]+$/.test(callback) || !nonce) {
+    return ContentService.createTextOutput('Invalid status request');
+  }
+  let saved = false;
+  try {
+    const ss = SpreadsheetApp.openById('1E00yfmksAzRZF7nlrc4ygiCWcqWxOTi5_1FfrHoTYwY');
+    const sheet = ss.getSheetByName('RSVP Responses');
+    if (sheet && sheet.getLastRow() > 1) {
+      const matches = sheet.getRange(2,5,sheet.getLastRow()-1,1)
+        .createTextFinder(nonce).matchEntireCell(true).findNext();
+      saved = !!matches;
+    }
+  } catch (err) { console.error('RSVP status check: ' + err); }
+  const payload = JSON.stringify({nonce:nonce,saved:saved}).replace(/</g,'\u003c');
+  return ContentService.createTextOutput(callback + '(' + payload + ');')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
