@@ -36,26 +36,26 @@ function reply(ok, nonce, error) {
   return HtmlService.createHtmlOutput('<!doctype html><html><body><script>window.top.postMessage(' + data + ',"*");window.parent.postMessage(' + data + ',"*");<\/script></body></html>');
 }
 
-// Cross-origin confirmation check. JSONP is used because Google Apps Script
-// web-app responses cannot reliably be read by fetch() on GitHub Pages.
+// Confirmation via HtmlService iframe and postMessage (no CORS or JSONP).
 function doGet(e) {
   const p = (e && e.parameter) || {};
-  const callback = String(p.callback || '');
   const nonce = String(p.nonce || '').slice(0,120);
-  if (p.action !== 'status' || !/^rsvpVerify_[0-9]+$/.test(callback) || !nonce) {
-    return ContentService.createTextOutput('Invalid status request');
+  if (p.action !== 'status' || !nonce) {
+    return HtmlService.createHtmlOutput('Invalid status request');
   }
   let saved = false;
   try {
     const ss = SpreadsheetApp.openById('1E00yfmksAzRZF7nlrc4ygiCWcqWxOTi5_1FfrHoTYwY');
     const sheet = ss.getSheetByName('RSVP Responses');
     if (sheet && sheet.getLastRow() > 1) {
-      const matches = sheet.getRange(2,5,sheet.getLastRow()-1,1)
+      const match = sheet.getRange(2, 5, sheet.getLastRow()-1, 1)
         .createTextFinder(nonce).matchEntireCell(true).findNext();
-      saved = !!matches;
+      saved = !!match;
     }
-  } catch (err) { console.error('RSVP status check: ' + err); }
-  const payload = JSON.stringify({nonce:nonce,saved:saved}).replace(/</g,'\u003c');
-  return ContentService.createTextOutput(callback + '(' + payload + ');')
-    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  } catch (err) { console.error('RSVP confirmation lookup failed: ' + err); }
+  const data = JSON.stringify({type:'melvin-joy-rsvp-status', nonce:nonce, saved:saved})
+    .replace(/</g, '\u003c');
+  return HtmlService.createHtmlOutput('<!doctype html><html><body><script>' +
+    'window.parent.postMessage(' + data + ',"*");' +
+    '<\/script></body></html>');
 }

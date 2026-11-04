@@ -22,26 +22,30 @@ let rsvpPoll = null;
 let rsvpCheckNumber = 0;
 
 function checkRsvpSaved(nonce) {
+  // Apps Script ContentService JSONP is unreliable after Google's redirects.
+  // Instead, load an HtmlService status page in a hidden iframe. It sends a
+  // nonce-matched postMessage to the parent without cross-origin fetch/CORS.
   return new Promise((resolve) => {
-    const callbackName = 'rsvpVerify_' + (++rsvpCheckNumber);
-    const script = document.createElement('script');
+    const frame = document.createElement('iframe');
+    frame.style.display = 'none';
+    frame.setAttribute('title', 'RSVP confirmation');
     let settled = false;
-    const finish = (result) => {
+    const finish = (value) => {
       if (settled) return;
       settled = true;
+      window.removeEventListener('message', onMessage);
       clearTimeout(timer);
-      delete window[callbackName];
-      script.remove();
-      resolve(result);
+      frame.remove();
+      resolve(value);
     };
-    window[callbackName] = (data) => {
-      if (!data || data.nonce !== nonce) return finish(null);
-      finish(data);
+    const onMessage = (event) => {
+      if (!event.data || event.data.type !== 'melvin-joy-rsvp-status' || event.data.nonce !== nonce) return;
+      finish(event.data);
     };
-    const timer = setTimeout(() => finish(null), 8000);
-    script.onerror = () => finish(null);
-    script.src = RSVP_SCRIPT_URL + '?action=status&nonce=' + encodeURIComponent(nonce) + '&callback=' + callbackName + '&_=' + Date.now();
-    document.head.appendChild(script);
+    window.addEventListener('message', onMessage);
+    const timer = setTimeout(() => finish(null), 10000);
+    frame.src = RSVP_SCRIPT_URL + '?action=status&nonce=' + encodeURIComponent(nonce) + '&_=' + Date.now();
+    document.body.appendChild(frame);
   });
 }
 
