@@ -22,30 +22,28 @@ let rsvpPoll = null;
 let rsvpCheckNumber = 0;
 
 function checkRsvpSaved(nonce) {
-  // Apps Script ContentService JSONP is unreliable after Google's redirects.
-  // Instead, load an HtmlService status page in a hidden iframe. It sends a
-  // nonce-matched postMessage to the parent without cross-origin fetch/CORS.
+  // JSONP status endpoint: unlike an Apps Script iframe, this callback runs
+  // in the wedding website's own page and works across Google's redirects.
   return new Promise((resolve) => {
-    const frame = document.createElement('iframe');
-    frame.style.display = 'none';
-    frame.setAttribute('title', 'RSVP confirmation');
+    const callbackName = 'melvinJoyCheck_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
     let settled = false;
     const finish = (value) => {
       if (settled) return;
       settled = true;
-      window.removeEventListener('message', onMessage);
       clearTimeout(timer);
-      frame.remove();
+      script.remove();
+      delete window[callbackName];
       resolve(value);
     };
-    const onMessage = (event) => {
-      if (!event.data || event.data.type !== 'melvin-joy-rsvp-status' || event.data.nonce !== nonce) return;
-      finish(event.data);
+    window[callbackName] = (result) => {
+      if (result && result.nonce === nonce) finish(result);
     };
-    window.addEventListener('message', onMessage);
-    const timer = setTimeout(() => finish(null), 10000);
-    frame.src = RSVP_SCRIPT_URL + '?action=status&nonce=' + encodeURIComponent(nonce) + '&_=' + Date.now();
-    document.body.appendChild(frame);
+    script.onerror = () => finish(null);
+    const timer = setTimeout(() => finish(null), 9000);
+    script.src = RSVP_SCRIPT_URL + '?action=status&nonce=' + encodeURIComponent(nonce)
+      + '&callback=' + encodeURIComponent(callbackName) + '&_=' + Date.now();
+    document.head.appendChild(script);
   });
 }
 
@@ -107,5 +105,5 @@ rsvpForm.addEventListener('submit', (event) => {
     // Keep the same nonce if resubmitted: the server uses it to deduplicate.
     rsvpForm.dataset.retryNonce = rsvpNonce;
   }, 45000);
-  verify();
+  setTimeout(verify, 1500);
 });
